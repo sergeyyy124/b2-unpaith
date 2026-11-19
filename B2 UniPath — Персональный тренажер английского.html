@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B2 UniPath — Твой путь к B2 и университету</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 3D Flip Card Styles */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.7);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-sans transition-colors duration-200 min-h-screen flex flex-col">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Top Navigation & Study Timer Header -->
+  <header class="sticky top-0 z-40 backdrop-blur-md bg-white/85 dark:bg-slate-900/85 border-b border-slate-200 dark:border-slate-800">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+      <!-- Logo -->
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white font-bold shadow-md shadow-indigo-500/20">
+          B2
+        </div>
+        <div>
+          <h1 class="font-bold text-base sm:text-lg leading-tight tracking-tight">UniPath <span class="text-indigo-600 dark:text-indigo-400">B2</span></h1>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">A2/B1 → B2 • Подготовка к вузу</p>
+        </div>
+      </div>
+
+      <!-- Center: Pomodoro / Lesson Timer -->
+      <div class="flex items-center gap-2 bg-slate-100 dark:bg-slate-800/90 px-3 py-1.5 rounded-xl border border-slate-200/80 dark:border-slate-700/80">
+        <span class="text-xs font-medium text-slate-500 dark:text-slate-400 hidden md:inline">Таймер урока:</span>
+        <span id="timer-display" class="font-mono font-bold text-sm sm:text-base text-indigo-600 dark:text-indigo-400">20:00</span>
+        <button id="timer-toggle-btn" onclick="toggleTimer()" title="Запустить / Пауза" class="p-1.5 rounded-lg bg-white dark:bg-slate-700 hover:bg-indigo-50 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 shadow-sm transition">
+          <svg id="timer-icon-play" class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+          <svg id="timer-icon-pause" class="w-3.5 h-3.5 hidden" fill="currentColor" viewBox="0 0 20 20"><path d="M5.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75A.75.75 0 007.25 3h-1.5zM12.75 3a.75.75 0 00-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 00.75-.75V3.75a.75.75 0 00-.75-.75h-1.5z"/></svg>
+        </button>
+        <button onclick="resetTimer()" title="Сбросить таймер" class="p-1.5 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+        </button>
+      </div>
+
+      <!-- Right: Streak Badge & Dark Mode Toggle -->
+      <div class="flex items-center gap-2 sm:gap-3">
+        <div class="flex items-center gap-1.5 bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200/80 dark:border-amber-800/60 px-2.5 py-1 rounded-xl text-xs font-semibold" title="Дней подряд">
+          <span>🔥</span>
+          <span id="header-streak">1</span>
+          <span class="hidden sm:inline">дн.</span>
+        </div>
+        <button onclick="toggleTheme()" aria-label="Переключить тему" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 transition">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="w-5 h-5 hidden dark:block text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="w-5 h-5 block dark:hidden text-slate-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs -->
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex gap-1 sm:gap-2 overflow-x-auto pb-2 pt-1">
+      <button onclick="switchTab('lessons')" id="tab-btn-lessons" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap bg-indigo-600 text-white shadow-sm">
+        <span>📚</span> Сегодняшний урок
+      </button>
+      <button onclick="switchTab('vocab')" id="tab-btn-vocab" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <span>🗂️</span> Словарь B2 <span id="vocab-badge" class="ml-1 text-xs px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">0/8</span>
+      </button>
+      <button onclick="switchTab('tracker')" id="tab-btn-tracker" class="tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800">
+        <span>🎯</span> Трекер целей <span id="goals-badge" class="ml-1 text-xs px-1.5 py-0.5 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">0/3</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <!-- ==================== TAB 1: TODAY'S LESSON ==================== -->
+    <section id="tab-lessons" class="space-y-6">
+      <!-- Lesson Selector & AI Generator Bar -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-2" id="lesson-selector-container">
+          <!-- Lesson day pills injected by JS -->
+        </div>
+
+        <button id="generate-lesson-btn" onclick="generateNewLessonAI()" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-sm font-semibold shadow-md shadow-indigo-500/20 transition active:scale-[0.99]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>Сгенерировать следующий урок (AI)</span>
+        </button>
+      </div>
+
+      <!-- Active Lesson Container -->
+      <div id="active-lesson-content" class="space-y-8">
+        <!-- Rendered dynamically by JS -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: VOCABULARY B2 ==================== -->
+    <section id="tab-vocab" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-5 sm:p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold">Академический словарь B2</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Нажми на карточку, чтобы перевернуть. Нажми на динамик, чтобы услышать произношение.</p>
+        </div>
+        <!-- Filter Pills -->
+        <div class="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto">
+          <button onclick="setVocabFilter('all')" id="vfilter-all" class="vfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 shadow-sm">Все</button>
+          <button onclick="setVocabFilter('learning')" id="vfilter-learning" class="vfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300">На изучении</button>
+          <button onclick="setVocabFilter('learned')" id="vfilter-learned" class="vfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300">Выучено</button>
+        </div>
+      </div>
+
+      <!-- Add custom word quick form -->
+      <div class="bg-white dark:bg-slate-900 rounded-2xl p-4 sm:p-5 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <form onsubmit="addCustomWord(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+          <input type="text" id="new-word-en" required placeholder="Англ. слово / фраза (напр. curriculum)" class="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" id="new-word-ru" required placeholder="Перевод (напр. учебная программа)" class="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <input type="text" id="new-word-ex" placeholder="Пример на англ. (необязательно)" class="px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <button type="submit" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition">
+            + Добавить в словарь
+          </button>
+        </form>
+      </div>
+
+      <!-- Flashcards Grid -->
+      <div id="vocab-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Cards rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: GOALS & PROGRESS TRACKER ==================== -->
+    <section id="tab-tracker" class="hidden space-y-6">
+      <!-- Top Stats & Level Progress -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <!-- Progress bar card -->
+        <div class="md:col-span-2 bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Путь к поступлению</span>
+              <span id="xp-text" class="text-xs font-semibold text-slate-500 dark:text-slate-400">0 / 1000 XP</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold">Прогресс от A2/B1 к уровню B2</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Выполняй две части урока каждый день, учи слова и закрывай ежедневные цели.</p>
+          </div>
+
+          <div class="mt-6">
+            <div class="flex justify-between text-xs font-bold mb-2">
+              <span class="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800">A2 / B1 (Старт)</span>
+              <span class="text-indigo-600 dark:text-indigo-400" id="level-percent">15%</span>
+              <span class="px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">B2 (Университет)</span>
+            </div>
+            <div class="w-full h-3.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden p-0.5">
+              <div id="level-progress-bar" class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 rounded-full transition-all duration-500" style="width: 15%"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Streak & Daily Achievement Card -->
+        <div class="bg-gradient-to-br from-indigo-600 to-violet-700 text-white rounded-2xl p-6 shadow-md flex flex-col justify-between">
+          <div class="flex items-start justify-between">
+            <div>
+              <p class="text-indigo-100 text-xs font-semibold uppercase tracking-wider">Ударный режим</p>
+              <div class="flex items-baseline gap-2 mt-1">
+                <span id="tracker-streak-num" class="text-4xl font-extrabold">1</span>
+                <span class="text-indigo-100 text-sm font-medium">дней подряд</span>
+              </div>
+            </div>
+            <span class="text-3xl">🔥</span>
+          </div>
+          <div class="mt-6 pt-4 border-t border-white/15 flex items-center justify-between text-xs">
+            <span class="text-indigo-100">Занимайся каждый день</span>
+            <button onclick="incrementStreak()" class="px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 font-semibold transition">
+              + Отметить день
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Daily Goals Checklist & Notes -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Daily Goals Checklist -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-lg font-bold">Мои цели на день (Daily Goals)</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Закрывай задачи, чтобы приблизить поступление в университет</p>
+            </div>
+            <button onclick="resetDailyGoals()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Новый день</button>
+          </div>
+
+          <form onsubmit="addDailyGoal(event)" class="flex gap-2">
+            <input type="text" id="new-goal-input" placeholder="Добавить цель на сегодня..." class="flex-1 px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button type="submit" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition">Добавить</button>
+          </form>
+
+          <ul id="daily-goals-list" class="space-y-2.5 pt-1">
+            <!-- Goals rendered dynamically -->
+          </ul>
+        </div>
+
+        <!-- Study Notes -->
+        <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-lg font-bold">Личный конспект и заметки</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Записывай сюда сложные правила, идеи для эссе или вопросы</p>
+            </div>
+            <span id="notes-saved-indicator" class="text-xs text-emerald-600 dark:text-emerald-400 font-medium opacity-0 transition-opacity">Сохранено ✓</span>
+          </div>
+          <textarea id="study-notes-textarea" oninput="saveNotes()" rows="7" placeholder="Например: После despite нельзя ставить глагол в личной форме (despite raining, но не despite it rained)..." class="flex-1 w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"></textarea>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Word Lookup Modal / Drawer for Reading Tab -->
+  <div id="word-popup" class="hidden fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4" onclick="closeWordPopup(event)">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-md w-full p-6 border border-slate-200 dark:border-slate-800 shadow-xl space-y-4" onclick="event.stopPropagation()">
+      <div class="flex items-start justify-between gap-3">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">Словарь текста (B2)</span>
+          <h3 id="popup-word" class="text-2xl font-bold mt-0.5">enroll in</h3>
+        </div>
+        <button onclick="speakText(document.getElementById('popup-word').textContent)" class="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 transition" title="Озвучить">
+          🔊
+        </button>
+      </div>
+      <p id="popup-translation" class="text-base font-semibold text-slate-700 dark:text-slate-200">поступать / зачисляться</p>
+      <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700 text-sm">
+        <p class="text-xs text-slate-400 mb-1">Пример использования:</p>
+        <p id="popup-example" class="italic text-slate-700 dark:text-slate-300"></p>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button onclick="addPopupWordToVocab()" class="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition">
+          + В мой словарь
+        </button>
+        <button onclick="document.getElementById('word-popup').classList.add('hidden')" class="px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-sm font-semibold transition">
+          Закрыть
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==================== INITIAL DATA & STATE ====================
+    const DEFAULT_VOCAB = [
+      { id: 'v1', en: 'enroll in a university', ru: 'поступить / зачислиться в университет', ex: 'She plans to enroll in a European university next autumn.', learned: false },
+      { id: 'v2', en: 'achieve a daily goal', ru: 'достигать ежедневной цели', ex: 'Breaking big tasks into steps helps me achieve my daily goals.', learned: false },
+      { id: 'v3', en: 'boost productivity', ru: 'повышать продуктивность', ex: 'Taking short breaks can significantly boost your productivity.', learned: false },
+      { id: 'v4', en: 'put something off', ru: 'откладывать что-либо на потом', ex: 'Stop putting off your exam preparation until the last week.', learned: false },
+      { id: 'v5', en: 'come up', ru: 'неожиданно возникнуть (о деле/проблеме)', ex: 'I wanted to study tonight, but something urgent came up.', learned: false },
+      { id: 'v6', en: 'fall short of', ru: 'не дотянуть до / не оправдать (ожиданий, цели)', ex: 'His first essay fell short of the B2 requirements.', learned: false },
+      { id: 'v7', en: 'academic background', ru: 'академическая база / образование', ex: 'Universities evaluate both your test scores and academic background.', learned: false },
+      { id: 'v8', en: 'curriculum', ru: 'учебная программа / курс обучения', ex: 'The first-year curriculum includes academic writing and research.', learned: false }
+    ];
+
+    const DEFAULT_LESSONS = [
+      {
+        id: 'day1',
+        dayLabel: 'День 1',
+        title: 'Времена прошлого + Академическая продуктивность',
+        type: 'grammar_vocab',
+        part1: {
+          badge: 'Часть 1 • Грамматика (B2)',
+          heading: 'Past Simple vs Past Perfect vs Past Perfect Continuous',
+          theory: [
+            {
+              rule: 'Past Simple (V2 / did)',
+              desc: 'Завершенное действие или факт в прошлом. Просто констатируем событие.',
+              example: 'I decided to apply to a university last month.'
+            },
+            {
+              rule: 'Past Perfect (had + V3)',
+              desc: 'Действие, которое завершилось ДО другого момента в прошлом (предпрошедшее).',
+              example: 'By the time I submitted my application, I had passed all the exams.'
+            },
+            {
+              rule: 'Past Perfect Continuous (had been + V-ing)',
+              desc: 'Длительный процесс, который шел в течение какого-то времени ДО другого события в прошлом. Важна длительность (for 5 years, for two months).',
+              example: 'She had been working in this company for five years before she got promoted.'
+            }
+          ],
+          quiz: [
+            {
+              q: 'She ______ in this company for five years before she got promoted.',
+              options: ['worked', 'has worked', 'had been working', 'was working'],
+              answer: 2,
+              explanation: 'Действие длилось 5 лет (for five years) до другого события в прошлом (before she got promoted), поэтому нужен Past Perfect Continuous.'
+            },
+            {
+              q: 'By the time the lecture started, most students ______ their seats.',
+              options: ['had taken', 'took', 'have taken', 'were taking'],
+              answer: 0,
+              explanation: 'Студенты заняли места ДО того, как началась лекция (короткое завершенное действие перед другим действием в прошлом → Past Perfect).'
+            },
+            {
+              q: 'Despite ______ exhausted, he finished reading the chapter.',
+              options: ['he was', 'feeling', 'of feeling', 'felt'],
+              answer: 1,
+              explanation: 'После предлога despite используется герундий (глагол с -ing) или существительное, но не придаточное предложение с подлежащим и сказуемым.'
+            },
+            {
+              q: 'I ______ English books for three months before I noticed real progress.',
+              options: ['had been reading', 'read', 'have been reading', 'am reading'],
+              answer: 0,
+              explanation: 'Акцент на длительности процесса (for three months) до момента в прошлом (before I noticed) → Past Perfect Continuous.'
+            }
+          ]
+        },
+        part2: {
+          badge: 'Часть 2 • Лексика и перевод',
+          heading: 'Коллокации для поступления и продуктивности',
+          vocabFocus: [
+            { term: 'enroll in a university', meaning: 'поступить / зачислиться в университет (обрати внимание на предлог in!)' },
+            { term: 'boost productivity', meaning: 'повысить продуктивность (не rise productivity!)' },
+            { term: 'come up', meaning: 'неожиданно возникнуть (о деле, задаче)' },
+            { term: 'achieve a daily goal', meaning: 'выполнить / достичь цель на день' }
+          ],
+          translations: [
+            {
+              id: 'tr1',
+              ru: 'До того как я начал учить английский серьезно, я уже читал книги на нем пару месяцев.',
+              hint: 'Подсказка: Before I started studying English seriously, I ... (Past Perfect Continuous + for a couple of months)',
+              sampleAnswer: 'Before I started studying English seriously, I had been reading books in English for a couple of months.',
+              keywords: ['had been reading', 'for a couple of months']
+            },
+            {
+              id: 'tr2',
+              ru: 'Вчера вечером у меня неожиданно возникло дело, поэтому я не смог выполнить свою дневную цель.',
+              hint: 'Подсказка: Last night something ... so I couldn’t ... my daily goal.',
+              sampleAnswer: 'Last night something came up, so I couldn’t achieve my daily goal.',
+              keywords: ['came up', 'goal']
+            },
+            {
+              id: 'tr3',
+              ru: 'Я хочу поступить в университет, чтобы улучшить свои навыки.',
+              hint: 'Подсказка: I want to ... a university in order to improve my skills.',
+              sampleAnswer: 'I want to enroll in a university in order to improve my skills.',
+              keywords: ['enroll in', 'university']
+            }
+          ]
+        }
+      },
+      {
+        id: 'day2',
+        dayLabel: 'День 2',
+        title: 'Чтение (B2) + Академическое письмо',
+        type: 'reading_writing',
+        part1: {
+          badge: 'Часть 1 • Чтение с разбором лексики',
+          heading: 'How Daily Habits Shape University Success',
+          intro: 'Нажимай на выделенные синим слова в тексте, чтобы увидеть перевод и добавить их в словарь.',
+          paragraphs: [
+            'Preparing to <span class="word-link" data-word="enroll in" data-tr="поступать / зачисляться" data-ex="Thousands of international students enroll in European universities every year.">enroll in</span> a competitive university requires much more than cramming grammar rules the night before an exam. Students who <span class="word-link" data-word="achieve their goals" data-tr="достигать своих целей" data-ex="Consistent effort is the key to achieving your long-term goals.">achieve their goals</span> usually rely on small, consistent daily routines rather than rare bursts of motivation.',
+            'Research shows that learners who <span class="word-link" data-word="put off" data-tr="откладывать на потом (прокрастинировать)" data-ex="Never put off writing your motivation letter until the deadline.">put off</span> studying until the weekend often feel overwhelmed and <span class="word-link" data-word="fall short of" data-tr="не дотягивать до / не достигать" data-ex="Without a clear schedule, your results might fall short of the B2 standard.">fall short of</span> their target scores. In contrast, dedicating just thirty focused minutes a day can dramatically <span class="word-link" data-word="boost productivity" data-tr="повысить продуктивность" data-ex="Turning off phone notifications will immediately boost your productivity.">boost productivity</span> and build long-term memory.',
+            'Even when unexpected tasks <span class="word-link" data-word="come up" data-tr="неожиданно возникать" data-ex="If something urgent comes up, adjust your schedule instead of skipping the day completely.">come up</span> during a busy day, reading a single English article or reviewing five flashcards keeps your momentum alive. By the time application deadlines arrive, these daily habits will have transformed your <span class="word-link" data-word="academic background" data-tr="академическая база / подготовка" data-ex="A strong academic background gives you confidence during university interviews.">academic background</span>.'
+          ],
+          comprehension: [
+            {
+              q: 'According to the text, what do successful university applicants rely on?',
+              options: [
+                'Cramming grammar rules right before the exam',
+                'Small, consistent daily routines',
+                'Rare bursts of high motivation'
+              ],
+              answer: 1,
+              explanation: 'В первом абзаце сказано: «usually rely on small, consistent daily routines rather than rare bursts of motivation».'
+            },
+            {
+              q: 'What happens to students who delay studying until the weekend?',
+              options: [
+                'They boost their long-term memory',
+                'They feel overwhelmed and may miss their target scores',
+                'They finish their curriculum faster'
+              ],
+              answer: 1,
+              explanation: 'Во втором абзаце: «often feel overwhelmed and fall short of their target scores».'
+            },
+            {
+              q: 'What is the best strategy when something unexpected happens during the day?',
+              options: [
+                'Skip studying completely until next week',
+                'Do a small task like reading one article or reviewing 5 flashcards',
+                'Only focus on grammar exercises'
+              ],
+              answer: 1,
+              explanation: 'В третьем абзаце: «reading a single English article or reviewing five flashcards keeps your momentum alive».'
+            }
+          ]
+        },
+        part2: {
+          badge: 'Часть 2 • Письмо с AI-проверкой',
+          heading: 'Мини-эссе: Твои цели на день и поступление',
+          prompt: 'Напиши 3–5 предложений на английском о том, почему ты хочешь поступить в университет и как твои ежедневные привычки (чтение книг, планирование целей на день) помогают тебе достичь уровня B2.',
+          starters: [
+            'In order to enroll in a university, I...',
+            'Despite having a busy schedule, I...',
+            'By the time I apply, I will have...',
+            'Reading books in my free time helps me...'
+          ]
+        }
+      }
+    ];
+
+    const DEFAULT_GOALS = [
+      { id: 'g1', text: 'Пройти Часть 1 сегодняшнего урока (10 мин)', done: false },
+      { id: 'g2', text: 'Пройти Часть 2 и повторить 5 слов из словаря B2', done: false },
+      { id: 'g3', text: 'Прочитать 2 страницы книги на английском вечером', done: false }
+    ];
+
+    // Load or Initialize State
+    let state = {
+      theme: localStorage.getItem('unipath_theme') || 'light',
+      activeTab: 'lessons',
+      activeLessonId: 'day1',
+      lessons: JSON.parse(localStorage.getItem('unipath_lessons')) || DEFAULT_LESSONS,
+      vocab: JSON.parse(localStorage.getItem('unipath_vocab')) || DEFAULT_VOCAB,
+      vocabFilter: 'all',
+      goals: JSON.parse(localStorage.getItem('unipath_goals')) || DEFAULT_GOALS,
+      streak: parseInt(localStorage.getItem('unipath_streak') || '1', 10),
+      xp: parseInt(localStorage.getItem('unipath_xp') || '150', 10),
+      notes: localStorage.getItem('unipath_notes') || '',
+      completedQuizItems: JSON.parse(localStorage.getItem('unipath_quiz_done')) || {}
+    };
+
+    function saveState() {
+      localStorage.setItem('unipath_theme', state.theme);
+      localStorage.setItem('unipath_lessons', JSON.stringify(state.lessons));
+      localStorage.setItem('unipath_vocab', JSON.stringify(state.vocab));
+      localStorage.setItem('unipath_goals', JSON.stringify(state.goals));
+      localStorage.setItem('unipath_streak', state.streak.toString());
+      localStorage.setItem('unipath_xp', state.xp.toString());
+      localStorage.setItem('unipath_notes', state.notes);
+      localStorage.setItem('unipath_quiz_done', JSON.stringify(state.completedQuizItems));
+      updateBadgesAndStats();
+    }
+
+    // ==================== THEME & NOTIFICATIONS ====================
+    function applyTheme() {
+      if (state.theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === 'light' ? 'dark' : 'light';
+      applyTheme();
+      saveState();
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'bg-emerald-600 text-white',
+        info: 'bg-slate-900 dark:bg-indigo-600 text-white',
+        warning: 'bg-amber-500 text-white'
+      };
+      toast.className = `pointer-events-auto px-4 py-3 rounded-xl shadow-lg text-sm font-medium flex items-center justify-between gap-3 transform transition-all duration-300 translate-y-2 opacity-0 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3200);
+    }
+
+    function addXP(points) {
+      state.xp = Math.min(1000, state.xp + points);
+      saveState();
+    }
+
+    // ==================== SPEECH SYNTHESIS (TTS) ====================
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        showToast('Озвучка не поддерживается в этом браузере', 'warning');
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      utterance.rate = 0.95;
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // ==================== POMODORO / LESSON TIMER ====================
+    let timerSeconds = 20 * 60;
+    let timerInterval = null;
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
+      const secs = (timerSeconds % 60).toString().padStart(2, '0');
+      document.getElementById('timer-display').textContent = `${mins}:${secs}`;
+    }
+
+    function toggleTimer() {
+      const playIcon = document.getElementById('timer-icon-play');
+      const pauseIcon = document.getElementById('timer-icon-pause');
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        playIcon.classList.remove('hidden');
+        pauseIcon.classList.add('hidden');
+      } else {
+        playIcon.classList.add('hidden');
+        pauseIcon.classList.remove('hidden');
+        timerInterval = setInterval(() => {
+          if (timerSeconds > 0) {
+            timerSeconds--;
+            updateTimerDisplay();
+          } else {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            addXP(50);
+            showToast('🎉 20 минут занятия завершены! +50 XP', 'success');
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerSeconds = 20 * 60;
+      updateTimerDisplay();
+      document.getElementById('timer-icon-play').classList.remove('hidden');
+      document.getElementById('timer-icon-pause').classList.add('hidden');
+    }
+
+    // ==================== NAVIGATION TABS ====================
+    function switchTab(tabName) {
+      state.activeTab = tabName;
+      ['lessons', 'vocab', 'tracker'].forEach(t => {
+        const section = document.getElementById(`tab-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (t === tabName) {
+          section.classList.remove('hidden');
+          btn.className = 'tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap bg-indigo-600 text-white shadow-sm';
+        } else {
+          section.classList.add('hidden');
+          btn.className = 'tab-btn flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800';
+        }
+      });
+
+      if (tabName === 'vocab') renderVocab();
+      if (tabName === 'tracker') renderTracker();
+    }
+
+    // ==================== RENDER LESSONS (DAY 1, DAY 2, AI DAYS) ====================
+    function renderLessonSelector() {
+      const container = document.getElementById('lesson-selector-container');
+      container.innerHTML = state.lessons.map(lesson => {
+        const isActive = lesson.id === state.activeLessonId;
+        return `
+          <button onclick="selectLesson('${lesson.id}')" class="px-4 py-2 rounded-xl text-sm font-semibold transition ${
+            isActive
+              ? 'bg-indigo-600 text-white shadow-sm'
+              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+          }">
+            ${lesson.dayLabel}
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectLesson(id) {
+      state.activeLessonId = id;
+      renderLessonSelector();
+      renderActiveLesson();
+    }
+
+    function renderActiveLesson() {
+      const lesson = state.lessons.find(l => l.id === state.activeLessonId) || state.lessons[0];
+      const container = document.getElementById('active-lesson-content');
+
+      if (lesson.type === 'grammar_vocab') {
+        container.innerHTML = `
+          <!-- Lesson Header Banner -->
+          <div class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-6 shadow-md">
+            <span class="inline-block px-3 py-1 rounded-lg bg-white/20 text-xs font-bold uppercase tracking-wider mb-2">${lesson.dayLabel} • Двухчастный урок</span>
+            <h2 class="text-2xl sm:text-3xl font-bold">${lesson.title}</h2>
+            <p class="text-indigo-100 text-sm mt-1">Выполни обе части урока (~20 минут), чтобы закрепить материал для уровня B2.</p>
+          </div>
+
+          <!-- PART 1: GRAMMAR -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">${lesson.part1.badge}</span>
+              <h3 class="text-xl font-bold mt-1">${lesson.part1.heading}</h3>
+            </div>
+
+            <!-- Grammar Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              ${lesson.part1.theory.map(item => `
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/80 dark:border-slate-700/80 flex flex-col justify-between gap-3">
+                  <div>
+                    <h4 class="font-bold text-indigo-600 dark:text-indigo-400 text-sm">${item.rule}</h4>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-1.5 leading-relaxed">${item.desc}</p>
+                  </div>
+                  <div class="pt-2.5 border-t border-slate-200/70 dark:border-slate-700 flex items-start justify-between gap-2">
+                    <p class="text-xs italic font-medium text-slate-800 dark:text-slate-200">«${item.example}»</p>
+                    <button onclick="speakText('${item.example.replace(/'/g, "\\'")}')" class="shrink-0 p-1 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-xs" title="Озвучить">🔊</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Interactive Grammar Quiz -->
+            <div class="space-y-4 pt-2">
+              <h4 class="font-bold text-base flex items-center gap-2">
+                <span>✍️</span> Интерактивный тренажер (выбери правильный вариант)
+              </h4>
+              <div class="space-y-4">
+                ${lesson.part1.quiz.map((qItem, qIdx) => {
+                  const key = `${lesson.id}_q_${qIdx}`;
+                  const savedChoice = state.completedQuizItems[key];
+                  return `
+                    <div class="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-3">
+                      <p class="font-medium text-sm sm:text-base">${qIdx + 1}. ${qItem.q}</p>
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${qItem.options.map((opt, optIdx) => {
+                          let btnClass = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-indigo-400';
+                          if (savedChoice !== undefined) {
+                            if (optIdx === qItem.answer) {
+                              btnClass = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-semibold';
+                            } else if (optIdx === savedChoice && savedChoice !== qItem.answer) {
+                              btnClass = 'bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-200';
+                            }
+                          }
+                          return `
+                            <button onclick="answerQuiz('${lesson.id}', ${qIdx}, ${optIdx})" class="text-left px-4 py-2.5 rounded-xl border text-sm transition ${btnClass}">
+                              <span class="font-bold mr-2 opacity-60">${String.fromCharCode(97 + optIdx)})</span> ${opt}
+                            </button>
+                          `;
+                        }).join('')}
+                      </div>
+                      ${savedChoice !== undefined ? `
+                        <div class="p-3 rounded-xl text-xs leading-relaxed ${savedChoice === qItem.answer ? 'bg-emerald-100/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200' : 'bg-amber-100/70 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200'}">
+                          <strong>${savedChoice === qItem.answer ? 'Верно! ✅' : 'Обрати внимание 💡'}</strong> ${qItem.explanation}
+                        </div>
+                      ` : ''}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- PART 2: VOCABULARY & TRANSLATION -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">${lesson.part2.badge}</span>
+              <h3 class="text-xl font-bold mt-1">${lesson.part2.heading}</h3>
+            </div>
+
+            <!-- Key Collocations List -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              ${lesson.part2.vocabFocus.map(v => `
+                <div class="p-3.5 rounded-xl bg-violet-50/60 dark:bg-violet-950/20 border border-violet-200/70 dark:border-violet-800/50 flex items-center justify-between gap-3">
+                  <div>
+                    <p class="font-bold text-sm text-violet-900 dark:text-violet-200">${v.term}</p>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 mt-0.5">${v.meaning}</p>
+                  </div>
+                  <button onclick="speakText('${v.term.replace(/'/g, "\\'")}')" class="p-2 rounded-lg bg-white dark:bg-slate-800 shadow-xs hover:scale-105 transition" title="Озвучить">🔊</button>
+                </div>
+              `).join('')}
+            </div>
+
+            <!-- Translation Practice -->
+            <div class="space-y-4 pt-2">
+              <h4 class="font-bold text-base">🎯 Практика перевода на уровень B2</h4>
+              ${lesson.part2.translations.map((tr, idx) => `
+                <div class="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-3">
+                  <p class="font-medium text-sm sm:text-base">${idx + 1}. ${tr.ru}</p>
+                  <p class="text-xs text-slate-500 dark:text-slate-400">${tr.hint}</p>
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="input-${tr.id}" placeholder="Напиши перевод на английском..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <button onclick="checkTranslation('${lesson.id}', '${tr.id}')" class="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition shrink-0">
+                      Проверить
+                    </button>
+                  </div>
+                  <div id="feedback-${tr.id}" class="hidden p-3.5 rounded-xl text-xs space-y-1.5"></div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        // DAY 2: READING + WRITING WITH AI CHECK
+        container.innerHTML = `
+          <!-- Lesson Header Banner -->
+          <div class="bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl p-6 shadow-md">
+            <span class="inline-block px-3 py-1 rounded-lg bg-white/20 text-xs font-bold uppercase tracking-wider mb-2">${lesson.dayLabel} • Двухчастный урок</span>
+            <h2 class="text-2xl sm:text-3xl font-bold">${lesson.title}</h2>
+            <p class="text-emerald-100 text-sm mt-1">Развиваем навыки академического чтения и письма для поступления в университет.</p>
+          </div>
+
+          <!-- PART 1: READING -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">${lesson.part1.badge}</span>
+                <h3 class="text-xl font-bold mt-1">${lesson.part1.heading}</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">${lesson.part1.intro}</p>
+              </div>
+              <button onclick="speakFullReading()" class="self-start sm:self-auto inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 text-xs font-semibold hover:bg-emerald-100 transition">
+                <span>🔊</span> Озвучить текст
+              </button>
+            </div>
+
+            <!-- Interactive Reading Text -->
+            <div id="reading-article-body" class="p-5 sm:p-6 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/80 space-y-4 text-sm sm:text-base leading-relaxed text-slate-800 dark:text-slate-200">
+              ${lesson.part1.paragraphs.map(p => `<p>${p}</p>`).join('')}
+            </div>
+
+            <!-- Reading Comprehension Questions -->
+            <div class="space-y-4 pt-2">
+              <h4 class="font-bold text-base">🧠 Проверка понимания прочитанного</h4>
+              ${lesson.part1.comprehension.map((qItem, qIdx) => {
+                const key = `${lesson.id}_comp_${qIdx}`;
+                const savedChoice = state.completedQuizItems[key];
+                return `
+                  <div class="p-4 sm:p-5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 space-y-3">
+                    <p class="font-medium text-sm sm:text-base">${qIdx + 1}. ${qItem.q}</p>
+                    <div class="space-y-2">
+                      ${qItem.options.map((opt, optIdx) => {
+                        let btnClass = 'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 hover:border-emerald-400';
+                        if (savedChoice !== undefined) {
+                          if (optIdx === qItem.answer) {
+                            btnClass = 'bg-emerald-50 dark:bg-emerald-950/60 border-emerald-500 text-emerald-800 dark:text-emerald-200 font-semibold';
+                          } else if (optIdx === savedChoice && savedChoice !== qItem.answer) {
+                            btnClass = 'bg-rose-50 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-200';
+                          }
+                        }
+                        return `
+                          <button onclick="answerCompQuiz('${lesson.id}', ${qIdx}, ${optIdx})" class="w-full text-left px-4 py-2.5 rounded-xl border text-sm transition ${btnClass}">
+                            ${opt}
+                          </button>
+                        `;
+                      }).join('')}
+                    </div>
+                    ${savedChoice !== undefined ? `
+                      <div class="p-3 rounded-xl text-xs bg-emerald-100/70 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200">
+                        <strong>Пояснение:</strong> ${qItem.explanation}
+                      </div>
+                    ` : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- PART 2: WRITING WITH AI FEEDBACK -->
+          <div class="bg-white dark:bg-slate-900 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
+            <div>
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-600 dark:text-indigo-400">${lesson.part2.badge}</span>
+              <h3 class="text-xl font-bold mt-1">${lesson.part2.heading}</h3>
+              <p class="text-sm text-slate-600 dark:text-slate-300 mt-1.5">${lesson.part2.prompt}</p>
+            </div>
+
+            <!-- Useful B2 Sentence Starters -->
+            <div>
+              <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2">Полезные конструкции B2 (нажми, чтобы вставить в текст):</p>
+              <div class="flex flex-wrap gap-2">
+                ${lesson.part2.starters.map(st => `
+                  <button onclick="insertStarter('${st.replace(/'/g, "\\'")}')" class="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/70 text-xs font-medium hover:bg-indigo-100 transition">
+                    + ${st}
+                  </button>
+                `).join('')}
+              </div>
+            </div>
+
+            <textarea id="essay-input" rows="5" placeholder="Напиши свой мини-текст на английском здесь..." class="w-full p-4 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm leading-relaxed focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <span class="text-xs text-slate-400">AI проверит грамматику, артикли, предлоги и предложит улучшенную версию уровня B2.</span>
+              <button id="check-essay-btn" onclick="checkEssayWithAI()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold shadow-sm transition">
+                <span>✨ Проверить эссе с помощью AI</span>
+              </button>
+            </div>
+
+            <div id="essay-ai-feedback" class="hidden p-5 rounded-2xl bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-800/60 space-y-3 text-sm"></div>
+          </div>
+        `;
+
+        // Attach click listeners to clickable words in reading
+        document.querySelectorAll('.word-link').forEach(el => {
+          el.className = 'word-link cursor-pointer font-semibold text-indigo-600 dark:text-indigo-400 underline decoration-indigo-400/60 decoration-2 underline-offset-4 hover:bg-indigo-100/70 dark:hover:bg-indigo-900/50 px-1 rounded transition';
+          el.onclick = () => openWordPopup(el.dataset.word, el.dataset.tr, el.dataset.ex);
+        });
+      }
+    }
+
+    function answerQuiz(lessonId, qIdx, optIdx) {
+      const lesson = state.lessons.find(l => l.id === lessonId);
+      const qItem = lesson.part1.quiz[qIdx];
+      const key = `${lessonId}_q_${qIdx}`;
+      if (state.completedQuizItems[key] === undefined && optIdx === qItem.answer) {
+        addXP(20);
+        showToast('Отлично! +20 XP', 'success');
+      }
+      state.completedQuizItems[key] = optIdx;
+      saveState();
+      renderActiveLesson();
+    }
+
+    function answerCompQuiz(lessonId, qIdx, optIdx) {
+      const lesson = state.lessons.find(l => l.id === lessonId);
+      const qItem = lesson.part1.comprehension[qIdx];
+      const key = `${lessonId}_comp_${qIdx}`;
+      if (state.completedQuizItems[key] === undefined && optIdx === qItem.answer) {
+        addXP(20);
+        showToast('Верный ответ! +20 XP', 'success');
+      }
+      state.completedQuizItems[key] = optIdx;
+      saveState();
+      renderActiveLesson();
+    }
+
+    function checkTranslation(lessonId, trId) {
+      const lesson = state.lessons.find(l => l.id === lessonId);
+      const trItem = lesson.part2.translations.find(t => t.id === trId);
+      const userVal = document.getElementById(`input-${trId}`).value.trim();
+      const feedbackEl = document.getElementById(`feedback-${trId}`);
+
+      if (!userVal) {
+        showToast('Сначала напиши свой вариант перевода', 'warning');
+        return;
+      }
+
+      const lowerUser = userVal.toLowerCase();
+      const matched = trItem.keywords.filter(kw => lowerUser.includes(kw.toLowerCase()));
+      const isGood = matched.length === trItem.keywords.length;
+
+      feedbackEl.classList.remove('hidden');
+      if (isGood) {
+        addXP(25);
+        feedbackEl.className = 'p-4 rounded-xl text-xs space-y-2 bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200';
+        feedbackEl.innerHTML = `
+          <p class="font-bold text-sm">🎉 Отличный перевод! Ключевые конструкции B2 использованы верно (+25 XP).</p>
+          <p><strong>Эталонный вариант B2:</strong> ${trItem.sampleAnswer} <button onclick="speakText('${trItem.sampleAnswer.replace(/'/g, "\\'")}')" class="ml-1 underline">🔊 Послушать</button></p>
+        `;
+      } else {
+        feedbackEl.className = 'p-4 rounded-xl text-xs space-y-2 bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200';
+        feedbackEl.innerHTML = `
+          <p class="font-bold text-sm">💡 Почти! Проверь использование целевых конструкций:</p>
+          <p>Ожидались выражения: <strong>${trItem.keywords.join(', ')}</strong>.</p>
+          <p><strong>Эталонный вариант B2:</strong> ${trItem.sampleAnswer} <button onclick="speakText('${trItem.sampleAnswer.replace(/'/g, "\\'")}')" class="ml-1 underline">🔊 Послушать</button></p>
+        `;
+      }
+    }
+
+    function speakFullReading() {
+      const body = document.getElementById('reading-article-body');
+      if (body) speakText(body.innerText);
+    }
+
+    function insertStarter(text) {
+      const textarea = document.getElementById('essay-input');
+      const clean = text.replace('...', ' ');
+      textarea.value = textarea.value ? `${textarea.value.trim()} ${clean}` : clean;
+      textarea.focus();
+    }
+
+    // ==================== WORD POPUP IN READING ====================
+    let currentPopupWord = null;
+
+    function openWordPopup(word, tr, ex) {
+      currentPopupWord = { en: word, ru: tr, ex: ex };
+      document.getElementById('popup-word').textContent = word;
+      document.getElementById('popup-translation').textContent = tr;
+      document.getElementById('popup-example').textContent = ex;
+      document.getElementById('word-popup').classList.remove('hidden');
+    }
+
+    function closeWordPopup(e) {
+      if (e.target.id === 'word-popup') {
+        document.getElementById('word-popup').classList.add('hidden');
+      }
+    }
+
+    function addPopupWordToVocab() {
+      if (!currentPopupWord) return;
+      const exists = state.vocab.some(v => v.en.toLowerCase() === currentPopupWord.en.toLowerCase());
+      if (exists) {
+        showToast('Это слово уже есть в твоем словаре!', 'info');
+      } else {
+        state.vocab.unshift({
+          id: 'v_' + Date.now(),
+          en: currentPopupWord.en,
+          ru: currentPopupWord.ru,
+          ex: currentPopupWord.ex,
+          learned: false
+        });
+        saveState();
+        showToast(`«${currentPopupWord.en}» добавлено в словарь B2!`, 'success');
+      }
+      document.getElementById('word-popup').classList.add('hidden');
+    }
+
+    // ==================== GEMINI API INTEGRATION (AI ESSAY CHECK & LESSON GENERATOR) ====================
+    async function callGeminiWithRetry(payload, maxRetries = 3) {
+      const apiKey = "";
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+      let delay = 1000;
+
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          return await response.json();
+        } catch (err) {
+          if (attempt === maxRetries) throw err;
+          await new Promise(res => setTimeout(res, delay));
+          delay *= 2;
+        }
+      }
+    }
+
+    async function checkEssayWithAI() {
+      const text = document.getElementById('essay-input').value.trim();
+      if (text.length < 10) {
+        showToast('Напиши хотя бы 2–3 предложения на английском для проверки.', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('check-essay-btn');
+      const feedbackBox = document.getElementById('essay-ai-feedback');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳ AI проверяет текст...</span>';
+
+      const systemPrompt = `Ты дружелюбный и опытный преподаватель английского языка. Твой ученик готовится к поступлению в университет и поднимает уровень с A2/B1 до B2. 
+Проверь его короткий текст на английском. Ответь строго на русском языке в структурированном виде (используй простой HTML без markdown-блоков: <b>, <br>, <ul>, <li>):
+1. <b>Разбор ошибок</b> (артикли, предлоги вроде enroll in, времена, порядок слов — объясни понятно и доброжелательно).
+2. <b>Улучшенная версия уровня B2</b> (как этот же текст написал бы студент уровня B2).
+3. <b>Оценка и совет</b> (короткая похвала и 1 конкретный совет).`;
+
+      try {
+        const result = await callGeminiWithRetry({
+          contents: [{ parts: [{ text: `Проверь текст ученика:\n"${text}"` }] }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        });
+
+        const reply = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (reply) {
+          feedbackBox.classList.remove('hidden');
+          feedbackBox.innerHTML = reply;
+          addXP(40);
+          showToast('Эссе проверено! +40 XP', 'success');
+        } else {
+          throw new Error('Empty response');
+        }
+      } catch (e) {
+        feedbackBox.classList.remove('hidden');
+        feedbackBox.innerHTML = `<p class="text-rose-600 dark:text-rose-400">Не удалось связаться с AI-сервером. Проверь подключение к интернету и попробуй снова.</p>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>✨ Проверить эссе с помощью AI</span>';
+      }
+    }
+
+    async function generateNewLessonAI() {
+      const btn = document.getElementById('generate-lesson-btn');
+      const nextDayNum = state.lessons.length + 1;
+      btn.disabled = true;
+      btn.innerHTML = `<span>⏳ Генерирую День ${nextDayNum}...</span>`;
+
+      const topics = [
+        'Conditionals (First, Second, Third) + Университетские экзамены и дедлайны',
+        'Passive Voice (Страдательный залог) + Научные исследования и учеба',
+        'Modal Verbs of Deduction (must have, might have) + Академическая жизнь',
+        'Reported Speech (Косвенная речь) + Интервью при поступлении в вуз',
+        'Relative Clauses (which, who, whose, where) + Выбор профессии и карьеры'
+      ];
+      const chosenTopic = topics[(nextDayNum - 3) % topics.length] || topics[0];
+
+      const payload = {
+        contents: [{
+          parts: [{
+            text: `Создай Урок (День ${nextDayNum}) для студента, который учит английский с A2/B1 до B2 для поступления в университет. Тема: ${chosenTopic}. Интерфейс и объяснения на русском, примеры и тесты на английском.`
+          }]
+        }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "OBJECT",
+            properties: {
+              title: { type: "STRING" },
+              part1: {
+                type: "OBJECT",
+                properties: {
+                  heading: { type: "STRING" },
+                  theory: {
+                    type: "ARRAY",
+                    items: {
+                      type: "OBJECT",
+                      properties: {
+                        rule: { type: "STRING" },
+                        desc: { type: "STRING" },
+                        example: { type: "STRING" }
+                      },
+                      required: ["rule", "desc", "example"]
+                    }
+                  },
+                  quiz: {
+                    type: "ARRAY",
+                    items: {
+                      type: "OBJECT",
+                      properties: {
+                        q: { type: "STRING" },
+                        options: { type: "ARRAY", items: { type: "STRING" } },
+                        answer: { type: "INTEGER" },
+                        explanation: { type: "STRING" }
+                      },
+                      required: ["q", "options", "answer", "explanation"]
+                    }
+                  }
+                },
+                required: ["heading", "theory", "quiz"]
+              },
+              part2: {
+                type: "OBJECT",
+                properties: {
+                  heading: { type: "STRING" },
+                  vocabFocus: {
+                    type: "ARRAY",
+                    items: {
+                      type: "OBJECT",
+                      properties: {
+                        term: { type: "STRING" },
+                        meaning: { type: "STRING" }
+                      },
+                      required: ["term", "meaning"]
+                    }
+                  },
+                  translations: {
+                    type: "ARRAY",
+                    items: {
+                      type: "OBJECT",
+                      properties: {
+                        ru: { type: "STRING" },
+                        hint: { type: "STRING" },
+                        sampleAnswer: { type: "STRING" },
+                        keywords: { type: "ARRAY", items: { type: "STRING" } }
+                      },
+                      required: ["ru", "hint", "sampleAnswer", "keywords"]
+                    }
+                  }
+                },
+                required: ["heading", "vocabFocus", "translations"]
+              }
+            },
+            required: ["title", "part1", "part2"]
+          }
+        }
+      };
+
+      try {
+        const result = await callGeminiWithRetry(payload);
+        const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const parsed = JSON.parse(rawText);
+
+        const newLesson = {
+          id: `day${nextDayNum}`,
+          dayLabel: `День ${nextDayNum}`,
+          title: parsed.title,
+          type: 'grammar_vocab',
+          part1: {
+            badge: 'Часть 1 • Грамматика (B2)',
+            heading: parsed.part1.heading,
+            theory: parsed.part1.theory,
+            quiz: parsed.part1.quiz
+          },
+          part2: {
+            badge: 'Часть 2 • Лексика и перевод',
+            heading: parsed.part2.heading,
+            vocabFocus: parsed.part2.vocabFocus,
+            translations: parsed.part2.translations.map((t, idx) => ({
+              ...t,
+              id: `d${nextDayNum}_tr${idx}`
+            }))
+          }
+        };
+
+        state.lessons.push(newLesson);
+        state.activeLessonId = newLesson.id;
+        saveState();
+        renderLessonSelector();
+        renderActiveLesson();
+        showToast(`🎉 Сгенерирован новый урок: День ${nextDayNum}!`, 'success');
+      } catch (err) {
+        showToast('Не удалось сгенерировать урок. Попробуй ещё раз через пару секунд.', 'warning');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg><span>Сгенерировать следующий урок (AI)</span>`;
+      }
+    }
+
+    // ==================== VOCABULARY FLASHCARDS ====================
+    function setVocabFilter(filter) {
+      state.vocabFilter = filter;
+      ['all', 'learning', 'learned'].forEach(f => {
+        const btn = document.getElementById(`vfilter-${f}`);
+        if (f === filter) {
+          btn.className = 'vfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-700 shadow-sm text-slate-900 dark:text-white';
+        } else {
+          btn.className = 'vfilter-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-300';
+        }
+      });
+      renderVocab();
+    }
+
+    function renderVocab() {
+      const grid = document.getElementById('vocab-grid');
+      const filtered = state.vocab.filter(item => {
+        if (state.vocabFilter === 'learned') return item.learned;
+        if (state.vocabFilter === 'learning') return !item.learned;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+            <p class="text-slate-500 dark:text-slate-400 text-sm">В этой категории пока нет карточек.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(word => `
+        <div class="perspective-1000 h-60">
+          <div onclick="this.classList.toggle('rotate-y-180')" class="relative w-full h-full transition-transform duration-500 transform-style-3d cursor-pointer">
+            <!-- Front Side -->
+            <div class="absolute inset-0 backface-hidden bg-white dark:bg-slate-900 rounded-2xl p-5 border ${word.learned ? 'border-emerald-400/70 dark:border-emerald-700' : 'border-slate-200 dark:border-slate-800'} shadow-sm flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-md ${word.learned ? 'bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400'}">
+                  ${word.learned ? 'Выучено ✓' : 'Уровень B2'}
+                </span>
+                <button onclick="event.stopPropagation(); speakText('${word.en.replace(/'/g, "\\'")}')" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition" title="Озвучить">
+                  🔊
+                </button>
+              </div>
+
+              <div class="text-center my-auto px-2">
+                <h3 class="text-xl font-bold tracking-tight">${word.en}</h3>
+                <p class="text-xs text-slate-400 mt-2">Нажми, чтобы увидеть перевод</p>
+              </div>
+
+              <div class="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
+                <button onclick="event.stopPropagation(); toggleWordLearned('${word.id}')" class="text-xs font-semibold ${word.learned ? 'text-slate-500 hover:text-slate-700' : 'text-emerald-600 dark:text-emerald-400 hover:underline'}">
+                  ${word.learned ? 'Вернуть на изучение' : '✓ Отметить выученным'}
+                </button>
+                <button onclick="event.stopPropagation(); deleteWord('${word.id}')" class="text-xs text-slate-400 hover:text-rose-500" title="Удалить">✕</button>
+              </div>
+            </div>
+
+            <!-- Back Side -->
+            <div class="absolute inset-0 backface-hidden rotate-y-180 bg-indigo-600 text-white rounded-2xl p-5 shadow-md flex flex-col justify-between">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-indigo-200">Перевод и контекст</span>
+                <button onclick="event.stopPropagation(); speakText('${(word.ex || word.en).replace(/'/g, "\\'")}')" class="p-1.5 rounded-lg bg-white/15 hover:bg-white/25 text-xs">
+                  🔊 Пример
+                </button>
+              </div>
+
+              <div class="my-auto space-y-2">
+                <p class="text-lg font-bold">${word.ru}</p>
+                ${word.ex ? `<p class="text-xs text-indigo-100 italic bg-white/10 p-2.5 rounded-xl">«${word.ex}»</p>` : ''}
+              </div>
+
+              <div class="text-right">
+                <span class="text-[11px] text-indigo-200">Нажми, чтобы повернуть обратно ↻</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleWordLearned(id) {
+      const word = state.vocab.find(w => w.id === id);
+      if (word) {
+        word.learned = !word.learned;
+        if (word.learned) {
+          addXP(15);
+          showToast(`Слово «${word.en}» выучено! +15 XP`, 'success');
+        }
+        saveState();
+        renderVocab();
+      }
+    }
+
+    function deleteWord(id) {
+      state.vocab = state.vocab.filter(w => w.id !== id);
+      saveState();
+      renderVocab();
+    }
+
+    function addCustomWord(e) {
+      e.preventDefault();
+      const en = document.getElementById('new-word-en').value.trim();
+      const ru = document.getElementById('new-word-ru').value.trim();
+      const ex = document.getElementById('new-word-ex').value.trim();
+      if (!en || !ru) return;
+
+      state.vocab.unshift({
+        id: 'v_' + Date.now(),
+        en,
+        ru,
+        ex,
+        learned: false
+      });
+      document.getElementById('new-word-en').value = '';
+      document.getElementById('new-word-ru').value = '';
+      document.getElementById('new-word-ex').value = '';
+      saveState();
+      renderVocab();
+      showToast(`Слово «${en}» добавлено в словарь!`, 'success');
+    }
+
+    // ==================== GOALS & TRACKER ====================
+    function renderTracker() {
+      document.getElementById('tracker-streak-num').textContent = state.streak;
+      document.getElementById('study-notes-textarea').value = state.notes;
+
+      const list = document.getElementById('daily-goals-list');
+      list.innerHTML = state.goals.map(goal => `
+        <li class="flex items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/70 dark:border-slate-700/70">
+          <label class="flex items-center gap-3 cursor-pointer flex-1">
+            <input type="checkbox" ${goal.done ? 'checked' : ''} onchange="toggleGoal('${goal.id}')" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500">
+            <span class="text-sm ${goal.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-200 font-medium'}">${goal.text}</span>
+          </label>
+          <button onclick="deleteGoal('${goal.id}')" class="text-xs text-slate-400 hover:text-rose-500 px-1.5">✕</button>
+        </li>
+      `).join('');
+    }
+
+    function toggleGoal(id) {
+      const goal = state.goals.find(g => g.id === id);
+      if (goal) {
+        goal.done = !goal.done;
+        if (goal.done) {
+          addXP(20);
+          showToast('Цель на день закрыта! +20 XP 🎯', 'success');
+        }
+        saveState();
+        renderTracker();
+      }
+    }
+
+    function addDailyGoal(e) {
+      e.preventDefault();
+      const input = document.getElementById('new-goal-input');
+      const text = input.value.trim();
+      if (!text) return;
+      state.goals.push({ id: 'g_' + Date.now(), text, done: false });
+      input.value = '';
+      saveState();
+      renderTracker();
+    }
+
+    function deleteGoal(id) {
+      state.goals = state.goals.filter(g => g.id !== id);
+      saveState();
+      renderTracker();
+    }
+
+    function resetDailyGoals() {
+      state.goals.forEach(g => g.done = false);
+      saveState();
+      renderTracker();
+      showToast('Чек-лист обновлен на новый день!', 'info');
+    }
+
+    function incrementStreak() {
+      state.streak += 1;
+      addXP(30);
+      saveState();
+      renderTracker();
+      showToast(`🔥 Серия продлена: ${state.streak} дн. подряд! +30 XP`, 'success');
+    }
+
+    let notesTimeout = null;
+    function saveNotes() {
+      state.notes = document.getElementById('study-notes-textarea').value;
+      saveState();
+      const ind = document.getElementById('notes-saved-indicator');
+      ind.classList.remove('opacity-0');
+      clearTimeout(notesTimeout);
+      notesTimeout = setTimeout(() => ind.classList.add('opacity-0'), 1500);
+    }
+
+    function updateBadgesAndStats() {
+      // Streak
+      document.getElementById('header-streak').textContent = state.streak;
+
+      // Vocab badge
+      const learnedCount = state.vocab.filter(v => v.learned).length;
+      document.getElementById('vocab-badge').textContent = `${learnedCount}/${state.vocab.length}`;
+
+      // Goals badge
+      const doneGoals = state.goals.filter(g => g.done).length;
+      document.getElementById('goals-badge').textContent = `${doneGoals}/${state.goals.length}`;
+
+      // Level Progress
+      const pct = Math.min(100, Math.round((state.xp / 1000) * 100));
+      document.getElementById('xp-text').textContent = `${state.xp} / 1000 XP`;
+      document.getElementById('level-percent').textContent = `${pct}%`;
+      document.getElementById('level-progress-bar').style.width = `${pct}%`;
+    }
+
+    // ==================== INITIALIZATION ====================
+    window.addEventListener('DOMContentLoaded', () => {
+      applyTheme();
+      updateTimerDisplay();
+      renderLessonSelector();
+      renderActiveLesson();
+      updateBadgesAndStats();
+    });
+  </script>
+</body>
+</html>
